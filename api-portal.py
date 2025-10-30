@@ -13,18 +13,17 @@ import time
 TWITCH_CLIENT_ID = os.getenv("TWITCH_CLIENT_ID")
 TWITCH_CLIENT_SECRET = os.getenv("TWITCH_CLIENT_SECRET")
 
-# Firebase (service account JSON)
-FIREBASE_SERVICE_ACCOUNT = os.getenv("FIREBASE_SERVICE_ACCOUNT")
+# Firebase (service account JSON file path)
+FIREBASE_SERVICE_ACCOUNT_PATH = "/etc/secrets/dashboard-f0217-firebase-adminsdk-fbsvc-afee65e5ba.json"
 
-if not (TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET and FIREBASE_SERVICE_ACCOUNT):
-    raise RuntimeError("❌ Faltam variáveis de ambiente (TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET, FIREBASE_SERVICE_ACCOUNT)")
+if not (TWITCH_CLIENT_ID and TWITCH_CLIENT_SECRET):
+    raise RuntimeError("❌ Faltam variáveis de ambiente (TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET)")
 
 # ==========================
 # 🔥 INICIALIZA O FIREBASE ADMIN SDK
 # ==========================
 try:
-    sa_info = json.loads(FIREBASE_SERVICE_ACCOUNT)
-    cred = credentials.Certificate(sa_info)
+    cred = credentials.Certificate(FIREBASE_SERVICE_ACCOUNT_PATH)
     firebase_admin.initialize_app(cred)
     db = firestore.client()
     print("✅ Firebase conectado com sucesso.")

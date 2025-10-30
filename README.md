@@ -31,9 +31,12 @@ Este projeto é uma API em Python que monitora o status de streamers da Twitch e
 3. **Configure as variáveis de ambiente**:
    - `TWITCH_CLIENT_ID`: Seu Client ID da Twitch
    - `TWITCH_CLIENT_SECRET`: Seu Client Secret da Twitch
-   - `FIREBASE_SERVICE_ACCOUNT`: JSON da chave de serviço do Firebase (como string)
 
    Você pode definir essas variáveis no seu sistema ou usar um arquivo `.env` com a biblioteca `python-dotenv`.
+
+4. **Arquivo de chave do Firebase**:
+   - O arquivo de chave de serviço do Firebase deve estar localizado em: `/etc/secrets/dashboard-f0217-firebase-adminsdk-fbsvc-afee65e5ba.json`
+   - Certifique-se de que o arquivo está acessível e tem as permissões corretas.
 
 ## Como usar
 
