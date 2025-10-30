@@ -72,31 +72,45 @@ def is_channel_live(channel_name: str, access_token: str) -> bool:
 def update_streamer_status():
     """Atualiza o campo isOnline na coleção streamers."""
     print("🔄 Atualizando status dos streamers...")
-    access_token = get_twitch_access_token()
-    streamers_ref = db.collection("streamers")
-    streamers = streamers_ref.stream()
+    try:
+        access_token = get_twitch_access_token()
+        streamers_ref = db.collection("streamers")
+        streamers = streamers_ref.stream()
 
-    for doc in streamers:
-        data = doc.to_dict()
-        stream_url = data.get("streamUrl")
+        for doc in streamers:
+            data = doc.to_dict()
+            stream_url = data.get("streamUrl")
 
-        channel = extract_channel_name(stream_url)
-        if not channel:
-            print(f"⚠️ Streamer {doc.id} sem URL válida.")
-            continue
+            channel = extract_channel_name(stream_url)
+            if not channel:
+                print(f"⚠️ Streamer {doc.id} sem URL válida.")
+                continue
 
-        try:
-            online = is_channel_live(channel, access_token)
-            streamers_ref.document(doc.id).update({"isOnline": online})
-            print(f"✅ {channel}: {'Online' if online else 'Offline'}")
-        except Exception as e:
-            print(f"❌ Erro ao verificar {channel}: {e}")
+            try:
+                online = is_channel_live(channel, access_token)
+                streamers_ref.document(doc.id).update({"isOnline": online})
+                print(f"✅ {channel}: {'Online' if online else 'Offline'}")
+            except Exception as e:
+                print(f"❌ Erro ao verificar {channel}: {e}")
+
+    except Exception as e:
+        print(f"❌ Erro geral ao atualizar status: {e}")
+        if "Quota exceeded" in str(e):
+            print("⏳ Quota do Firebase excedida. Aguardando mais tempo...")
+            time.sleep(600)  # Espera 10 minutos se quota excedida
+        else:
+            time.sleep(60)  # Espera 1 minuto para outros erros
 
 # ==========================
 # 🔁 LOOP PRINCIPAL
 # ==========================
 if __name__ == "__main__":
     while True:
-        update_streamer_status()
-        print("⏳ Aguardando 5 minutos para próxima verificação...\n")
-        time.sleep(300)
+        try:
+            update_streamer_status()
+            print("⏳ Aguardando 5 minutos para próxima verificação...\n")
+            time.sleep(300)
+        except Exception as e:
+            print(f"❌ Erro no loop principal: {e}")
+            print("⏳ Aguardando 1 minuto antes de tentar novamente...\n")
+            time.sleep(60)
